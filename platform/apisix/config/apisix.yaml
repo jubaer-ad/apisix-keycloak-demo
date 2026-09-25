@@ -1,14 +1,24 @@
 routes:
-  - id: root-forward
+
+  - id: iam
+    uris:
+      - /iam
+      - /iam/*
+    upstream:
+      nodes:
+        "iam-service:8080": 1
+      type: roundrobin
+
+  - id : root-forward
     uri: /
     plugins:
       redirect:
         uri: /resource1/
         redirect_code: 302
-        
+
   - id: resource-one
     uris:
-      - /resource1 
+      - /resource1
       - /resource1/*
     upstream:
       nodes:
@@ -17,12 +27,23 @@ routes:
     plugins:
       proxy-rewrite:
         regex_uri:
-            - "^/resource1/?(.*)$"
-            - "/$1"
+          - "^/resource1/?(.*)$"
+          - "/$1"
+      openid-connect:
+        bearer_only: false
+        session:
+          secret: "${{ APISIX_SESSION_SECRET }}"
+        client_id: "${{ KEYCLOAK_CLIENT_ID }}"
+        client_secret: "${{ KEYCLOAK_CLIENT_SECRET }}"
+        discovery: "${{ KEYCLOAK_URL }}/realms/${{ KEYCLOAK_REALM }}/.well-known/openid-configuration"
+        scope: "openid email"
+        realm: "${{ KEYCLOAK_REALM }}"
+        redirect_uri: "${{ BASE_URL }}/resource1/oidc/"
+        post_logout_redirect_uri: "${{ BASE_URL }}/resource1/"
 
   - id: resource-two
     uris:
-      - /resource2 
+      - /resource2
       - /resource2/*
     upstream:
       nodes:
@@ -31,12 +52,12 @@ routes:
     plugins:
       proxy-rewrite:
         regex_uri:
-            - "^/resource2/?(.*)$"
-            - "/$1"
+          - "^/resource2/?(.*)$"
+          - "/$1"
 
   - id: resource-three
     uris:
-      - /resource3 
+      - /resource3
       - /resource3/*
     upstream:
       nodes:
@@ -45,7 +66,7 @@ routes:
     plugins:
       proxy-rewrite:
         regex_uri:
-            - "^/resource3/?(.*)$"
-            - "/$1"
+          - "^/resource3/?(.*)$"
+          - "/$1"
 
 #END

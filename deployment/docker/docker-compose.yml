@@ -5,13 +5,13 @@ services:
     environment:
       - APISIX_SESSION_SECRET=${APISIX_SESSION_SECRET}
       - KEYCLOAK_URL=http://iam-service:8080/iam
-      - KEYCLOAK_CLIENT_ID=demo-APISIX
+      - KEYCLOAK_CLIENT_ID=demo-apisix
       - KEYCLOAK_CLIENT_SECRET=${APISIX_CLIENT_AUTH_SECRET}
       - KEYCLOAK_REALM=demo
       - BASE_URL=http://localhost
     volumes:
       - ../../platform/apisix/config/config.yaml:/usr/local/apisix/conf/config.yaml
-      - ../../platform/apisix/config/apisix-final.yaml:/usr/local/apisix/conf/apisix.yaml
+      - ../../platform/apisix/config/apisix.yaml:/usr/local/apisix/conf/apisix.yaml
     ports:
       - "80:9080"
     depends_on:
